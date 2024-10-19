@@ -6,6 +6,10 @@ let repulsionStrength = 0.05; // Strength of repulsion force
 let maxRepulsion = 10; // Maximum repulsion force to avoid too much movement
 let wallBounceFactor = 0.9; // How much velocity is retained after bouncing (1 = perfect bounce, < 1 = some energy lost)
 
+let offsetX = 0;
+let offsetY = 0;
+let dragging = false;
+
 // P5 WILL AUTOMATICALLY USE GLOBAL MODE IF A DRAW() FUNCTION IS DEFINED
 function setup() {
   console.log("🚀 - Setup initialized - P5 is running");
@@ -39,6 +43,9 @@ function draw() {
 }
 
 function mousePressed() {
+  if (isMouseWithinCanvas()) {
+    dragging = true;
+  }
   rootNode.clicked();
 }
 
@@ -64,4 +71,29 @@ function applyRepulsion(nodeA: any, nodeB: any) {
     nodeB.vx -= cos(angle) * force;
     nodeB.vy -= sin(angle) * force;
   }
+}
+
+function mouseReleased() {
+  dragging = false;
+}
+
+function mouseDragged() {
+  if (dragging) {
+    // Update the canvas position, but keep within bounds
+    // total canvas area is 2000 x 1400
+    offsetX = constrain(
+      offsetX - (pmouseX - mouseX),
+      -windowWidth / 2,
+      windowWidth / 2
+    );
+    offsetY = constrain(
+      offsetY - (pmouseY - mouseY),
+      -windowHeight / 2,
+      windowHeight / 2
+    );
+  }
+}
+
+function isMouseWithinCanvas() {
+  return mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height;
 }

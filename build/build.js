@@ -1,26 +1,6 @@
-var GameEngine = (function () {
-    function GameEngine() {
-    }
-    GameEngine.getInstance = function () {
-        if (!GameEngine.instance) {
-            GameEngine.instance = new GameEngine();
-        }
-        return GameEngine.instance;
-    };
-    GameEngine.prototype.init = function () {
-        console.log("GameEngine initialized");
-    };
-    GameEngine.prototype.start = function () {
-        console.log("GameEngine started");
-    };
-    GameEngine.prototype.stop = function () {
-        console.log("GameEngine stopped");
-    };
-    return GameEngine;
-}());
 var SQUARE_SIZE = 50;
 var NODE_SPACING = 200;
-var MAX_NODES = 4;
+var MAX_NODES = 8;
 var GameNode = (function () {
     function GameNode(name, x, y, vx, vy) {
         this.name = name;
@@ -46,9 +26,7 @@ var GameNode = (function () {
                 this.linkedNodes.push(newNode);
             }
             else {
-                var vel = moveToPoint(this.linkedNodes[i].x, this.linkedNodes[i].y, x, y, 5);
-                this.linkedNodes[i].vx = vel.vx;
-                this.linkedNodes[i].vy = vel.vy;
+                this.linkedNodes[i].setPosition(x, y);
             }
         }
     };
@@ -62,7 +40,7 @@ var GameNode = (function () {
         this.x += this.vx;
         this.y += this.vy;
         checkWallCollision(this);
-        square(this.x, this.y, SQUARE_SIZE);
+        square(this.x + offsetX, this.y + offsetY, SQUARE_SIZE);
         this.vx *= 0.9;
         this.vy *= 0.9;
         for (var i = 0; i < this.linkedNodes.length; i++) {
@@ -70,7 +48,7 @@ var GameNode = (function () {
             push();
             stroke(200);
             strokeWeight(5);
-            line(this.x, this.y, linkedNode.x, linkedNode.y);
+            line(this.x + offsetX, this.y + offsetY, linkedNode.x + offsetX, linkedNode.y + offsetY);
             pop();
             linkedNode.draw();
         }
@@ -80,7 +58,8 @@ var GameNode = (function () {
         this.y = y;
     };
     GameNode.prototype.clicked = function () {
-        if (dist(mouseX, mouseY, this.x, this.y) < SQUARE_SIZE / 2) {
+        if (dist(mouseX, mouseY, this.x + offsetX, this.y + offsetY) <
+            SQUARE_SIZE / 2) {
             if (this.linkedNodes.length < MAX_NODES) {
                 this.addNode();
             }
@@ -132,6 +111,9 @@ var minDist = 150;
 var repulsionStrength = 0.05;
 var maxRepulsion = 10;
 var wallBounceFactor = 0.9;
+var offsetX = 0;
+var offsetY = 0;
+var dragging = false;
 function setup() {
     console.log("🚀 - Setup initialized - P5 is running");
     createCanvas(windowWidth, windowHeight);
@@ -152,6 +134,9 @@ function draw() {
     }
 }
 function mousePressed() {
+    if (isMouseWithinCanvas()) {
+        dragging = true;
+    }
     rootNode.clicked();
 }
 function applyRepulsion(nodeA, nodeB) {
@@ -167,5 +152,17 @@ function applyRepulsion(nodeA, nodeB) {
         nodeB.vx -= cos(angle) * force;
         nodeB.vy -= sin(angle) * force;
     }
+}
+function mouseReleased() {
+    dragging = false;
+}
+function mouseDragged() {
+    if (dragging) {
+        offsetX = constrain(offsetX - (pmouseX - mouseX), -windowWidth / 2, windowWidth / 2);
+        offsetY = constrain(offsetY - (pmouseY - mouseY), -windowHeight / 2, windowHeight / 2);
+    }
+}
+function isMouseWithinCanvas() {
+    return mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height;
 }
 //# sourceMappingURL=build.js.map

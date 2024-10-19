@@ -1,7 +1,7 @@
 const SQUARE_SIZE = 50;
 const NODE_SPACING = 200;
 
-const MAX_NODES = 4;
+const MAX_NODES = 8;
 
 class GameNode {
   linkedNodes: GameNode[] = [];
@@ -44,16 +44,16 @@ class GameNode {
         );
         this.linkedNodes.push(newNode);
       } else {
-        // this.linkedNodes[i].setPosition(x, y);
-        const vel = moveToPoint(
-          this.linkedNodes[i].x,
-          this.linkedNodes[i].y,
-          x,
-          y,
-          5
-        );
-        this.linkedNodes[i].vx = vel.vx;
-        this.linkedNodes[i].vy = vel.vy;
+        this.linkedNodes[i].setPosition(x, y);
+        // const vel = moveToPoint(
+        //   this.linkedNodes[i].x,
+        //   this.linkedNodes[i].y,
+        //   x + offsetX,
+        //   y + offsetY,
+        //   5
+        // );
+        // this.linkedNodes[i].vx = vel.vx;
+        // this.linkedNodes[i].vy = vel.vy;
       }
     }
   }
@@ -72,7 +72,7 @@ class GameNode {
 
     checkWallCollision(this);
 
-    square(this.x, this.y, SQUARE_SIZE);
+    square(this.x + offsetX, this.y + offsetY, SQUARE_SIZE);
     // push();
     // fill("cornflowerblue");
     // textSize(20);
@@ -90,7 +90,12 @@ class GameNode {
 
       strokeWeight(5);
 
-      line(this.x, this.y, linkedNode.x, linkedNode.y);
+      line(
+        this.x + offsetX,
+        this.y + offsetY,
+        linkedNode.x + offsetX,
+        linkedNode.y + offsetY
+      );
       pop();
       linkedNode.draw();
     }
@@ -102,7 +107,10 @@ class GameNode {
   }
 
   clicked() {
-    if (dist(mouseX, mouseY, this.x, this.y) < SQUARE_SIZE / 2) {
+    if (
+      dist(mouseX, mouseY, this.x + offsetX, this.y + offsetY) <
+      SQUARE_SIZE / 2
+    ) {
       if (this.linkedNodes.length < MAX_NODES) {
         this.addNode();
       }
